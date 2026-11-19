@@ -125,7 +125,7 @@ async function main(): Promise<void> {
   }
 
   console.log(
-    `Seeded ${catalog.protocols.length} fictitious protocols for Vale Claro. Track VC-2026-1077 to see a file that already moved from Meio Ambiente to Obras.`,
+    `Seeded ${catalog.protocols.length} fictitious protocols for Vale Claro. Track VC-2026-1077 to see a file that already moved from Environment to Public Works.`,
   );
 }
 

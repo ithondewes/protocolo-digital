@@ -9,9 +9,9 @@ import {
 } from "./protocol-flow";
 
 const route: StagePointer[] = [
-  { key: "environment-screen", sectorKey: "meio-ambiente", order: 1 },
-  { key: "works-review", sectorKey: "obras", order: 2 },
-  { key: "revenue-note", sectorKey: "tributos", order: 3 },
+  { key: "environment-screen", sectorKey: "environment", order: 1 },
+  { key: "works-review", sectorKey: "public-works", order: 2 },
+  { key: "revenue-note", sectorKey: "taxes", order: 3 },
 ];
 
 describe("status transitions", () => {
@@ -33,7 +33,7 @@ describe("sector handoff", () => {
     assert.equal(handoff.status, "submitted");
     if (handoff.status === "submitted") {
       assert.equal(handoff.next.key, "works-review");
-      assert.equal(handoff.next.sectorKey, "obras");
+      assert.equal(handoff.next.sectorKey, "public-works");
     }
   });
 
@@ -69,7 +69,7 @@ describe("timeline replay", () => {
         { kind: "resubmitted" },
         { kind: "claimed" },
       ],
-      [{ key: "review", sectorKey: "meio-ambiente", order: 1 }],
+      [{ key: "review", sectorKey: "environment", order: 1 }],
     );
     assert.deepEqual(state, { status: "in_review", stageKey: "review" });
   });
@@ -88,7 +88,7 @@ describe("timeline replay", () => {
   it("ignores internal events when replaying the public story", () => {
     const state = replayProtocol(
       [{ kind: "filed" }, { kind: "claimed", visibility: "internal" }],
-      [{ key: "review", sectorKey: "tributos", order: 1 }],
+      [{ key: "review", sectorKey: "taxes", order: 1 }],
     );
     assert.deepEqual(state, { status: "submitted", stageKey: "review" });
   });

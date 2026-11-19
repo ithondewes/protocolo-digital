@@ -4,10 +4,12 @@ type MongoCache = {
   promise: Promise<typeof mongoose> | null;
 };
 
-const globalCache = globalThis as typeof globalThis & { protocoloMongo?: MongoCache };
+const globalCache = globalThis as typeof globalThis & {
+  digitalProtocolMongo?: MongoCache;
+};
 
-const cache: MongoCache = globalCache.protocoloMongo ?? { promise: null };
-globalCache.protocoloMongo = cache;
+const cache: MongoCache = globalCache.digitalProtocolMongo ?? { promise: null };
+globalCache.digitalProtocolMongo = cache;
 
 export async function connectDb(): Promise<typeof mongoose> {
   if (mongoose.connection.readyState === 1) {

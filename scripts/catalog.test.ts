@@ -14,7 +14,7 @@ describe("fictitious catalog", () => {
     assert.ok(workflow);
     assert.deepEqual(
       workflow.stages.map((stage) => stage.sectorKey),
-      ["meio-ambiente", "obras", "tributos"],
+      ["environment", "public-works", "taxes"],
     );
     const workKind = building.formSchema.sections
       .flatMap((section) => section.fields)
@@ -30,7 +30,7 @@ describe("fictitious catalog", () => {
     const protocol = catalog.protocols.find((item) => item.code === "VC-2026-1118");
     assert.ok(protocol);
     assert.equal(protocol.status, "submitted");
-    assert.equal(protocol.currentSectorKey, "obras");
+    assert.equal(protocol.currentSectorKey, "public-works");
     assert.equal(protocol.assigneeEmail, undefined);
   });
 });

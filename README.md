@@ -1,10 +1,10 @@
-# Protocolo Digital
+# Digital Protocol
 
-Protocolo Digital is an open-source hub where people file a request with a municipality and the file moves between city sectors. The sample city is **Vale Claro**, and every person, parcel, and street in the seed data is fictitious.
+Digital Protocol is an open-source hub where people file a request with a municipality and the file moves between city sectors. The sample city is **Vale Claro**, and every person, parcel, and street in the seed data is fictitious.
 
 A sector publishes services. Each service is a protocol type with its own form and its own list of documents. A workflow says which sectors review the file, and in which order. One protocol number follows the file the whole way. Anyone who has the number can open a public timeline. Form answers, review notes, and files stay off that page.
 
-The sample catalog includes Obras, Meio Ambiente, Tributos, Vigilância Sanitária, and Posturas. A building file is one service in that catalog, not a separate product. Its form has a work-kind field (new construction, occupancy certificate, or demolition) and its route is Meio Ambiente, then Obras, then Tributos. Other services stop at a single desk, or at two. New sectors and new forms are data, not new wizards.
+The sample catalog includes Public Works, Environment, Taxes, Sanitary Inspection, and Street Use. A building file is one service in that catalog, not a separate product. Its form has a work-kind field (new construction, occupancy certificate, or demolition) and its route is Environment, then Public Works, then Taxes. Other services stop at a single desk, or at two. New sectors and new forms are data, not new wizards.
 
 ## Features in this version
 
@@ -61,7 +61,7 @@ Start MongoDB, then load the sample city:
 
 ```bash
 # example if you use Docker
-docker run --name protocolo-mongo -p 27017:27017 -d mongo:7
+docker run --name digital-protocol-mongo -p 27017:27017 -d mongo:7
 
 npm run seed
 npm run dev
@@ -69,17 +69,17 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-`npm run seed` deletes and rewrites the `protocolo_digital` database. It refuses to load a catalog that breaks the status machine, the route, or a form schema.
+`npm run seed` deletes and rewrites the `digital_protocol` database. It refuses to load a catalog that breaks the status machine, the route, or a form schema.
 
 Useful sample numbers:
 
-| Number         | What it shows                                                                    |
-| -------------- | -------------------------------------------------------------------------------- |
-| `VC-2026-1077` | Occupancy certificate, in review at Obras after Meio Ambiente cleared its stage. |
-| `VC-2026-1118` | Building file waiting to be claimed at Obras.                                    |
-| `VC-2026-1014` | Tree-care file that went out for a correction and came back.                     |
-| `VC-2026-1124` | Building file approved after all three sectors.                                  |
-| `VC-2026-1088` | Draft. The public page says it is not filed yet and hides the answers.           |
+| Number         | What it shows                                                                         |
+| -------------- | ------------------------------------------------------------------------------------- |
+| `VC-2026-1077` | Occupancy certificate, in review at Public Works after Environment cleared its stage. |
+| `VC-2026-1118` | Building file waiting to be claimed at Public Works.                                  |
+| `VC-2026-1014` | Tree-care file that went out for a correction and came back.                          |
+| `VC-2026-1124` | Building file approved after all three sectors.                                       |
+| `VC-2026-1088` | Draft. The public page says it is not filed yet and hides the answers.                |
 
 ## Scripts
 

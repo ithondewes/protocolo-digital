@@ -7,7 +7,7 @@ export function SiteFooter() {
           sample data are made up.
         </p>
         <p>
-          Protocolo Digital is a multi-sector protocol hub. Each service defines its own
+          Digital Protocol is a multi-sector protocol hub. Each service defines its own
           form, and a workflow carries the file from desk to desk.
         </p>
       </div>
