@@ -1,0 +1,35 @@
+{
+  "name": "protocolo-digital",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test lib/protocol-flow.test.ts scripts/catalog.test.ts",
+    "seed": "tsx --env-file=.env scripts/seed.ts"
+  },
+  "dependencies": {
+    "mongoose": "^9.12.2",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "prettier": "^3.6.2",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.20.5",
+    "typescript": "^5"
+  }
+}
