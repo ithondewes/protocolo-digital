@@ -1,9 +1,12 @@
 import mongoose from "mongoose";
 import { connectDb } from "../lib/db";
+import { demoPassword } from "../lib/demo";
+import { hashPassword } from "../lib/password";
 import { Protocol } from "../models/Protocol";
 import { ProtocolType } from "../models/ProtocolType";
 import { ReviewSection } from "../models/ReviewSection";
 import { Sector } from "../models/Sector";
+import { Session } from "../models/Session";
 import { TimelineEvent } from "../models/TimelineEvent";
 import { User } from "../models/User";
 import { Workflow } from "../models/Workflow";
@@ -16,6 +19,7 @@ async function main(): Promise<void> {
   await Promise.all([
     Sector.deleteMany({}),
     User.deleteMany({}),
+    Session.deleteMany({}),
     Workflow.deleteMany({}),
     ProtocolType.deleteMany({}),
     Protocol.deleteMany({}),
@@ -28,7 +32,10 @@ async function main(): Promise<void> {
   );
   const sectorId = new Map(sectorDocs.map((sector) => [sector.key, sector._id]));
 
-  const userDocs = await User.insertMany(catalog.users);
+  const passwordHash = await hashPassword(demoPassword);
+  const userDocs = await User.insertMany(
+    catalog.users.map((user) => ({ ...user, passwordHash })),
+  );
   const userId = new Map(userDocs.map((user) => [user.email, user._id]));
   const userName = new Map(userDocs.map((user) => [user.email, user.name]));
 
