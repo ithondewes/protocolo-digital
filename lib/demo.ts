@@ -4,7 +4,7 @@ export const municipality = {
   product: "Digital Protocol",
 } as const;
 
-/** Stand-in for the signed-in user until authentication exists. */
+/** Environment-desk analyst included in the fictitious seed. */
 export const previewAnalyst = {
   name: "Helena Duarte",
   email: "helena.duarte@valeclaro.test",
@@ -12,3 +12,6 @@ export const previewAnalyst = {
   sectorKeys: ["environment"] as const,
   sectorNames: ["Environment"] as const,
 };
+
+/** Shared password for every fictitious seeded account. Not a production secret. */
+export const demoPassword = "vale-claro-demo";

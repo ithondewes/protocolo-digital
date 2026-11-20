@@ -10,7 +10,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test lib/protocol-flow.test.ts scripts/catalog.test.ts",
+    "test": "tsx --test lib/protocol-flow.test.ts lib/password.test.ts lib/safe-next.test.ts scripts/catalog.test.ts",
     "seed": "tsx --env-file=.env scripts/seed.ts"
   },
   "dependencies": {
