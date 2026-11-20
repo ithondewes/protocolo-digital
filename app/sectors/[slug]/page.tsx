@@ -68,8 +68,8 @@ export default async function SectorPage({ params }: SectorRouteProps) {
       <section>
         <h2 className="font-display text-3xl">At this desk</h2>
         <p className="mt-2 text-sm text-muted">
-          Waiting, in review, or closed here. Applicant names are visible in this preview
-          because sign-in does not exist yet.
+          Waiting, in review, or closed here. This desk list shows the applicant. The
+          public timeline does not.
         </p>
         <div className="mt-5">
           <ProtocolList

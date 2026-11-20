@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { municipality, previewAnalyst } from "@/lib/demo";
+import { municipality } from "@/lib/demo";
+import { getCurrentUser } from "@/lib/session";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const user = await getCurrentUser();
+
   return (
     <header className="border-b border-pine bg-pine-deep text-paper">
       <a
@@ -10,30 +13,51 @@ export function SiteHeader() {
       >
         Skip to content
       </a>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <Link href="/" className="block">
-            <span className="block font-display text-2xl leading-none">
-              {municipality.product}
-            </span>
-            <span className="mt-1 block text-sm text-sand">
-              {municipality.name} protocol hub
-            </span>
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <Link href="/" className="block">
+          <span className="block font-display text-2xl leading-none">
+            {municipality.product}
+          </span>
+          <span className="mt-1 block text-sm text-sand">
+            {municipality.name} protocol hub
+          </span>
+        </Link>
+        <nav
+          aria-label="Primary"
+          className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm"
+        >
+          <Link href="/sectors" className="underline-offset-4 hover:underline">
+            Sectors
           </Link>
-          <nav aria-label="Primary" className="flex items-center gap-5 text-sm">
-            <Link href="/sectors" className="underline-offset-4 hover:underline">
-              Sectors
+          <Link href="/track" className="underline-offset-4 hover:underline">
+            Track
+          </Link>
+          {user?.role === "admin" ? (
+            <Link
+              href="/admin/protocol-types"
+              className="underline-offset-4 hover:underline"
+            >
+              Catalog
             </Link>
-            <Link href="/track" className="underline-offset-4 hover:underline">
-              Track
+          ) : null}
+          {user ? (
+            <>
+              <Link href="/account" className="underline-offset-4 hover:underline">
+                {user.name}
+                <span className="text-sand"> · {user.role}</span>
+              </Link>
+              <form action="/api/auth/logout" method="post">
+                <button type="submit" className="underline-offset-4 hover:underline">
+                  Sign out
+                </button>
+              </form>
+            </>
+          ) : (
+            <Link href="/sign-in" className="underline-offset-4 hover:underline">
+              Sign in
             </Link>
-          </nav>
-        </div>
-        <p className="max-w-3xl text-sm text-sand">
-          Previewing as {previewAnalyst.name}, {previewAnalyst.role} at{" "}
-          {previewAnalyst.sectorNames.join(", ")}. Sign-in is not built yet, so every page
-          is readable.
-        </p>
+          )}
+        </nav>
       </div>
     </header>
   );
