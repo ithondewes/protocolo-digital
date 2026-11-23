@@ -116,6 +116,17 @@ describe("answer parsing", () => {
     }
   });
 
+  it("requires an explicit yes or no", () => {
+    const parsed = parseAnswers(treeCare, {
+      place: { nearbyStreet: "Rua dos Exemplos" },
+      care: { action: "Prune", startsOn: "2026-12-01", cooksOnSite: "" },
+    });
+    assert.equal(parsed.ok, false);
+    if (!parsed.ok) {
+      assert.ok(parsed.issues.some((issue) => issue.path === "care.cooksOnSite"));
+    }
+  });
+
   it("reports a missing required answer and a number that is not numeric", () => {
     const parsed = parseAnswers(treeCare, {
       place: { nearbyStreet: "" },

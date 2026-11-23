@@ -17,7 +17,7 @@ function blankValues(form: FilingFormView): Values {
   for (const section of form.sections) {
     values[section.key] = {};
     for (const field of section.fields) {
-      values[section.key][field.key] = field.kind === "boolean" ? false : "";
+      values[section.key][field.key] = "";
     }
   }
   return values;
@@ -264,22 +264,41 @@ function FieldControl({
   return (
     <div>
       {field.kind === "boolean" ? (
-        <label htmlFor={id} className="flex items-start gap-3 text-sm font-medium">
-          <input
-            id={id}
-            name={`${sectionKey}.${field.key}`}
-            type="checkbox"
-            checked={value === true}
-            aria-invalid={message ? true : undefined}
-            aria-describedby={describedBy}
-            className="mt-1"
-            onChange={(event) => onChange(event.target.checked)}
-          />
-          <span>
+        <div
+          role="radiogroup"
+          aria-labelledby={`${id}-label`}
+          aria-describedby={describedBy}
+          aria-invalid={message ? true : undefined}
+          aria-required={field.required || undefined}
+          className="space-y-2"
+        >
+          <p id={`${id}-label`} className="text-sm font-medium">
             {field.label}
             {field.required ? <span className="text-copper"> · required</span> : null}
-          </span>
-        </label>
+          </p>
+          <div className="flex gap-4 text-sm">
+            <label className="inline-flex items-center gap-2" htmlFor={`${id}-yes`}>
+              <input
+                id={`${id}-yes`}
+                type="radio"
+                name={`${sectionKey}.${field.key}`}
+                checked={value === true}
+                onChange={() => onChange(true)}
+              />
+              Yes
+            </label>
+            <label className="inline-flex items-center gap-2" htmlFor={`${id}-no`}>
+              <input
+                id={`${id}-no`}
+                type="radio"
+                name={`${sectionKey}.${field.key}`}
+                checked={value === false}
+                onChange={() => onChange(false)}
+              />
+              No
+            </label>
+          </div>
+        </div>
       ) : (
         <label htmlFor={id} className="text-sm font-medium">
           {field.label}
