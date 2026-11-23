@@ -30,6 +30,12 @@ export default async function HomePage() {
             then walks the protocol from desk to desk. The number is enough to follow that
             walk in public.
           </p>
+          <Link
+            href="/file"
+            className="mt-6 inline-flex rounded-full bg-pine px-5 py-3 text-sm font-semibold text-paper"
+          >
+            File a request
+          </Link>
         </div>
         <TrackForm />
       </section>
