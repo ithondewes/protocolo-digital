@@ -27,6 +27,15 @@ function messageFor(issues: Issue[], path: string): string | undefined {
   return issues.find((issue) => issue.path === path)?.message;
 }
 
+function labelFor(form: FilingFormView, path: string): string {
+  const [sectionKey, fieldKey] = path.split(".");
+  if (sectionKey === "documents") {
+    return form.documents.find((document) => document.key === fieldKey)?.label ?? path;
+  }
+  const section = form.sections.find((item) => item.key === sectionKey);
+  return section?.fields.find((field) => field.key === fieldKey)?.label ?? path;
+}
+
 export function ApplicantForm({ form }: { form: FilingFormView }) {
   const router = useRouter();
   const [values, setValues] = useState<Values>(() => blankValues(form));
@@ -35,11 +44,17 @@ export function ApplicantForm({ form }: { form: FilingFormView }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
+  function clearIssue(path: string) {
+    setIssues((current) => current.filter((issue) => issue.path !== path));
+    setError(null);
+  }
+
   function setValue(sectionKey: string, fieldKey: string, value: string | boolean) {
     setValues((current) => ({
       ...current,
       [sectionKey]: { ...current[sectionKey], [fieldKey]: value },
     }));
+    clearIssue(`${sectionKey}.${fieldKey}`);
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -156,7 +171,9 @@ export function ApplicantForm({ form }: { form: FilingFormView }) {
           {issues.length > 0 ? (
             <ul className="mt-2 list-disc pl-5">
               {issues.map((issue) => (
-                <li key={`${issue.path}:${issue.message}`}>{issue.message}</li>
+                <li key={`${issue.path}:${issue.message}`}>
+                  {labelFor(form, issue.path)}: {issue.message}
+                </li>
               ))}
             </ul>
           ) : null}
@@ -215,6 +232,7 @@ export function ApplicantForm({ form }: { form: FilingFormView }) {
                   onChange={(event) => {
                     const file = event.target.files?.[0];
                     setFiles((current) => ({ ...current, [document.key]: file }));
+                    clearIssue(`documents.${document.key}`);
                   }}
                 />
                 {files[document.key] ? (
