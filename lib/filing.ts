@@ -1,3 +1,4 @@
+import type { DocumentRequirement, FormSchema } from "./domain";
 import type { StagePointer } from "./protocol-flow";
 import {
   ProtocolFlowError,
@@ -5,6 +6,16 @@ import {
   orderedStages,
   replayProtocol,
 } from "./protocol-flow";
+
+/** What the applicant form renders. It is the protocol type, not a fixed wizard. */
+export type FilingFormView = {
+  key: string;
+  name: string;
+  summary: string;
+  sections: FormSchema["sections"];
+  documents: DocumentRequirement[];
+  stages: { key: string; sectorName: string }[];
+};
 
 const PROTOCOL_CODE = /^VC-(\d{4})-(\d{4})$/;
 

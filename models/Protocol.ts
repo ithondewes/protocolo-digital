@@ -4,6 +4,10 @@ import { PROTOCOL_STATUSES, type ProtocolStatus } from "@/lib/domain";
 export type ProtocolAttachment = {
   requirementKey: string;
   fileName: string;
+  /** Set when the bytes were written through the document store. Seeded samples omit it. */
+  storageKey?: string;
+  mediaType?: string;
+  byteSize?: number;
 };
 
 export type ProtocolDocument = {
@@ -28,6 +32,9 @@ const AttachmentSchema = new Schema<ProtocolAttachment>(
   {
     requirementKey: { type: String, required: true },
     fileName: { type: String, required: true },
+    storageKey: { type: String },
+    mediaType: { type: String },
+    byteSize: { type: Number },
   },
   { _id: false },
 );
