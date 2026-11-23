@@ -18,6 +18,9 @@ The sample catalog includes Public Works, Environment, Taxes, Sanitary Inspectio
 - A read-only JSON view at `/api/protocols/[code]`.
 - Sign-in for applicants, analysts, and admins. Analysts see only the sectors on their account. Admins edit protocol types.
 - An admin catalog for protocol types: form sections, fields, and required documents, validated with Zod.
+- An applicant form rendered from the chosen protocol type. Zod checks the answers in the browser and again on the server.
+- Required-document uploads. The server checks the type and the size, then writes the bytes through a storage interface. The development driver keeps them on local disk.
+- Filing assigns the next protocol number, sets the status to `submitted`, and records a public timeline event at the first sector on the route.
 
 ## Status machine
 
@@ -44,8 +47,8 @@ A section decision (`pending`, `cleared`, `changes_requested`) does not by itsel
 - TypeScript in strict mode
 - MongoDB with Mongoose
 - Tailwind CSS
-- Zod for the catalog form schemas
-- Node's test runner for the status machine and the seed catalog
+- Zod for the catalog form schemas and for the answers an applicant submits
+- Node's test runner for the status machine, filing rules, upload checks, and the seed catalog
 
 ## Setup
 
@@ -72,13 +75,15 @@ Open [http://localhost:3000](http://localhost:3000).
 
 `npm run seed` deletes and rewrites the `digital_protocol` database. It refuses to load a catalog that breaks the status machine, the route, or a form schema. Every fictitious account uses the password `vale-claro-demo`.
 
+Uploaded documents go to `data/uploads` unless `UPLOAD_DIR` points somewhere else. That folder is for this machine only. The public timeline never includes the files.
+
 | Role                  | Email                           |
 | --------------------- | ------------------------------- |
 | Applicant             | `marina.costa@valeclaro.test`   |
 | Analyst (Environment) | `helena.duarte@valeclaro.test`  |
 | Admin                 | `nara.quinteiro@valeclaro.test` |
 
-Sign in at `/sign-in`. Admins open `/admin/protocol-types` to edit services.
+Sign in at `/sign-in`. Applicants open `/file` to submit a service. Admins open `/admin/protocol-types` to edit services.
 
 Useful sample numbers:
 
@@ -95,7 +100,7 @@ Useful sample numbers:
 ```bash
 npm run dev        # local app
 npm run lint       # eslint
-npm test           # status machine, passwords, and catalog validation
+npm test           # status machine, filing, uploads, passwords, and catalog validation
 npm run typecheck  # tsc --noEmit
 npm run build      # production build
 npm run seed       # fictitious Vale Claro data
@@ -104,9 +109,9 @@ npm run seed       # fictitious Vale Claro data
 ## Layout
 
 ```
-app/            routes, including /sectors, /track, and /api/protocols/[code]
-components/     header, lists, timeline, service cards
-lib/            status machine, form schemas, database, queries
+app/            routes, including /file, /sectors, /track, and /api/protocols/[code]
+components/     header, lists, timeline, service cards, applicant form
+lib/            status machine, form schemas, uploads, storage, database, queries
 models/         Mongoose models
 scripts/        seed catalog and loader
 ```
@@ -118,7 +123,7 @@ scripts/        seed catalog and loader
 - **Session** — a hashed sign-in token. The raw token stays in an http-only cookie.
 - **Workflow** — ordered stages. Each stage names the sector that owns it.
 - **ProtocolType** — a service: summary, publishing sector, workflow, form schema, and document requirements.
-- **Protocol** — one filed (or draft) case: status, current stage, answers, and attachment names. Bytes are not stored yet.
+- **Protocol** — one filed (or draft) case: status, current stage, answers, and attachments. A new filing stores a storage key, media type, and size. Seeded samples keep the file name only.
 - **ReviewSection / ReviewNote** — a decision and zero or more notes for one form section at one stage. Notes are embedded on the section.
 - **TimelineEvent** — a public or internal event. The tracking page shows public events only.
 
@@ -128,10 +133,10 @@ These are later milestones. Together they are the bulk of the product, well beyo
 
 1. **Accounts and roles.** Sign-in for applicants, analysts, and admins is in place, and an analyst's account lists only their sectors. Still to do: password reset, inviting users, self-service registration, and locking the future review queue to those sectors.
 2. **Catalog administration.** Admins can create, edit, deactivate, and remove protocol types, including the form schema and required documents. Still to do: editing sectors and workflows in the UI, and an audit entry for each catalog change.
-3. **Schema-driven filing.** An applicant opens a draft, fills the sections defined by the chosen protocol type, saves progress, and submits. The step list comes from the schema.
+3. **Schema-driven filing.** An applicant opens a service and submits the form defined by that protocol type. The section list comes from the schema. Still to do: saving a draft and finishing it later.
 4. **Analyst desk.** A queue of protocols waiting at the analyst's sector, claim, section-by-section review, notes, and the four outcomes: send back, hand off, approve, reject.
 5. **Corrections loop.** The applicant sees which sections were sent back, edits those answers, resubmits, and the same sector claims the file again. The timeline records the loop.
-6. **Document storage.** Upload the files a protocol type requires, keep them on the reviewing sector's screen, and keep them off the public timeline.
+6. **Document storage.** Uploads are checked for type and size and written through a storage interface. The included driver stores files on local disk for development, and the public timeline does not show them. Still to do: showing those files on the reviewing sector's screen.
 7. **AI analyst assistant.** A first-class helper on the review desk. It checks the submission against that protocol type's fields and required documents, writes a short summary of the request, and suggests notes the analyst can edit. It does not file a decision.
 8. **Fees.** An optional fee on a protocol type and a payment step around submission.
 9. **Notifications.** Email the applicant and the next sector when a protocol is filed, returned, advanced, approved, or rejected.
