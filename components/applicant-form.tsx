@@ -46,7 +46,6 @@ export function ApplicantForm({ form }: { form: FilingFormView }) {
 
   function clearIssue(path: string) {
     setIssues((current) => current.filter((issue) => issue.path !== path));
-    setError(null);
   }
 
   function setValue(sectionKey: string, fieldKey: string, value: string | boolean) {
@@ -97,10 +96,11 @@ export function ApplicantForm({ form }: { form: FilingFormView }) {
 
     if (nextIssues.length > 0) {
       setIssues(nextIssues);
-      setError("Check the form.");
+      setError(null);
       setPending(false);
       return;
     }
+    setIssues([]);
 
     const body = new FormData();
     body.set("typeKey", form.key);
@@ -124,8 +124,13 @@ export function ApplicantForm({ form }: { form: FilingFormView }) {
         issues?: Issue[];
       } | null;
       if (!response.ok || !payload?.code) {
-        setError(payload?.error ?? "The protocol could not be filed.");
-        setIssues(payload?.issues ?? []);
+        const serverIssues = payload?.issues ?? [];
+        setIssues(serverIssues);
+        setError(
+          serverIssues.length > 0
+            ? null
+            : (payload?.error ?? "The protocol could not be filed."),
+        );
         setPending(false);
         return;
       }
@@ -162,12 +167,12 @@ export function ApplicantForm({ form }: { form: FilingFormView }) {
         </ol>
       </nav>
 
-      {error ? (
+      {issues.length > 0 || error ? (
         <div
           role="alert"
           className="rounded-2xl bg-clay-soft px-4 py-3 text-sm text-clay"
         >
-          <p>{error}</p>
+          <p>{issues.length > 0 ? "Check the form." : error}</p>
           {issues.length > 0 ? (
             <ul className="mt-2 list-disc pl-5">
               {issues.map((issue) => (
