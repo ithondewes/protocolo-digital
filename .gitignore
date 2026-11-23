@@ -70,6 +70,9 @@ web_modules/
 .env.*
 !.env.example
 
+# Local document store used by the development upload driver
+data/uploads
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
