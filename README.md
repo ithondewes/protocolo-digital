@@ -21,6 +21,9 @@ The sample catalog includes Public Works, Environment, Taxes, Sanitary Inspectio
 - An applicant form rendered from the chosen protocol type. Zod checks the answers in the browser and again on the server.
 - Required-document uploads. The server checks the type and the size, then writes the bytes through a storage interface. The development driver keeps them on local disk.
 - Filing assigns the next protocol number, sets the status to `submitted`, and records a public timeline event at the first sector on the route.
+- An analyst inbox filtered by status, sector, and service. Claiming a protocol starts the review.
+- Section and document review. An analyst can approve an item or request a correction with a comment, then send the file back, hand it to the next sector, issue the final approval, or reject it.
+- A corrections loop. The applicant sees the requested changes on the public timeline and in their account, edits those parts, and resubmits. Earlier timeline events stay in place.
 
 ## Status machine
 
@@ -83,7 +86,7 @@ Uploaded documents go to `data/uploads` unless `UPLOAD_DIR` points somewhere els
 | Analyst (Environment) | `helena.duarte@valeclaro.test`  |
 | Admin                 | `nara.quinteiro@valeclaro.test` |
 
-Sign in at `/sign-in`. Applicants open `/file` to submit a service. Admins open `/admin/protocol-types` to edit services.
+Sign in at `/sign-in`. Applicants open `/file` to submit a service. Analysts open `/desk` for the inbox. Admins open `/admin/protocol-types` to edit services.
 
 Useful sample numbers:
 
@@ -109,9 +112,9 @@ npm run seed       # fictitious Vale Claro data
 ## Layout
 
 ```
-app/            routes, including /file, /sectors, /track, and /api/protocols/[code]
-components/     header, lists, timeline, service cards, applicant form
-lib/            status machine, form schemas, uploads, storage, database, queries
+app/            routes, including /file, /desk, /sectors, /track, and /api/protocols/[code]
+components/     header, lists, timeline, review form, applicant form
+lib/            status machine, review rules, form schemas, uploads, storage, database, queries
 models/         Mongoose models
 scripts/        seed catalog and loader
 ```
@@ -131,19 +134,19 @@ scripts/        seed catalog and loader
 
 These are later milestones. Together they are the bulk of the product, well beyond this foundation.
 
-1. **Accounts and roles.** Sign-in for applicants, analysts, and admins is in place, and an analyst's account lists only their sectors. Still to do: password reset, inviting users, self-service registration, and locking the future review queue to those sectors.
+1. **Accounts and roles.** Sign-in for applicants, analysts, and admins is in place. The inbox only lists the sectors on an analyst's account. Still to do: password reset, inviting users, and self-service registration.
 2. **Catalog administration.** Admins can create, edit, deactivate, and remove protocol types, including the form schema and required documents. Still to do: editing sectors and workflows in the UI, and an audit entry for each catalog change.
 3. **Schema-driven filing.** An applicant opens a service and submits the form defined by that protocol type. The section list comes from the schema. Still to do: saving a draft and finishing it later.
-4. **Analyst desk.** A queue of protocols waiting at the analyst's sector, claim, section-by-section review, notes, and the four outcomes: send back, hand off, approve, reject.
-5. **Corrections loop.** The applicant sees which sections were sent back, edits those answers, resubmits, and the same sector claims the file again. The timeline records the loop.
-6. **Document storage.** Uploads are checked for type and size and written through a storage interface. The included driver stores files on local disk for development, and the public timeline does not show them. Still to do: showing those files on the reviewing sector's screen.
+4. **Analyst desk.** The inbox, claim, section and document review, handoff, issuance, and rejection are in place for the sectors on the analyst's account. Still to do: reassignment, a shared unclaimed pool separate from "my claimed files", and bulk actions.
+5. **Corrections loop.** The applicant can see the open requests, edit those parts, and resubmit. The timeline keeps the earlier events. Still to do: limiting edits to a diff view, and letting the applicant reply without replacing every flagged document.
+6. **Document storage.** Uploads are checked for type and size and written through a storage interface. The included driver stores files on local disk for development, and the public timeline does not show them. Reviewers can download a stored file from the desk. Still to do: previews in the page, and a driver other than local disk.
 7. **AI analyst assistant.** A first-class helper on the review desk. It checks the submission against that protocol type's fields and required documents, writes a short summary of the request, and suggests notes the analyst can edit. It does not file a decision.
 8. **Fees.** An optional fee on a protocol type and a payment step around submission.
 9. **Notifications.** Email the applicant and the next sector when a protocol is filed, returned, advanced, approved, or rejected.
 10. **Deadlines.** A due date per stage and a desk view of what is late.
 11. **Audit log.** An internal history of claims, edits, and decisions, separate from the public timeline.
 12. **Digital signature.** Sign the final decision record.
-13. **Tests.** Cover filing, claim, handoff, corrections, and the public timeline at the route level, on top of the status-machine tests that already exist.
+13. **Tests.** The status machine, claim, handoff, issuance, and correction rules have unit tests. Still to do: route-level tests for the inbox and the resubmit form.
 14. **CI.** Run lint, typecheck, test, and build on every pull request.
 
 ## License
