@@ -32,6 +32,11 @@ export async function SiteHeader() {
           <Link href="/track" className="underline-offset-4 hover:underline">
             Track
           </Link>
+          {user?.role === "analyst" || user?.role === "admin" ? (
+            <Link href="/desk" className="underline-offset-4 hover:underline">
+              Inbox
+            </Link>
+          ) : null}
           {!user || user.role === "applicant" ? (
             <Link href="/file" className="underline-offset-4 hover:underline">
               File
