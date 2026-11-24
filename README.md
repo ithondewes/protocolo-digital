@@ -16,7 +16,8 @@ The sample catalog includes Public Works, Environment, Taxes, Sanitary Inspectio
 - A seed script with fictitious Vale Claro data, checked against the status machine and the form schemas.
 - A landing page, a sector directory, a per-sector protocol list, and a public tracking page.
 - A read-only JSON view at `/api/protocols/[code]`.
-- A preview banner for Helena Duarte, an environment-desk analyst. There is no sign-in yet.
+- Sign-in for applicants, analysts, and admins. Analysts see only the sectors on their account. Admins edit protocol types.
+- An admin catalog for protocol types: form sections, fields, and required documents, validated with Zod.
 
 ## Status machine
 
@@ -55,7 +56,7 @@ npm install
 cp .env.example .env
 ```
 
-`.env.example` holds a placeholder URI for a database on your own machine. Do not put real credentials in it.
+`.env.example` holds a placeholder database URI and a placeholder `SESSION_SECRET`. Replace the secret before any shared deployment. Do not put real credentials in the example file.
 
 Start MongoDB, then load the sample city:
 
@@ -69,7 +70,15 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-`npm run seed` deletes and rewrites the `digital_protocol` database. It refuses to load a catalog that breaks the status machine, the route, or a form schema.
+`npm run seed` deletes and rewrites the `digital_protocol` database. It refuses to load a catalog that breaks the status machine, the route, or a form schema. Every fictitious account uses the password `vale-claro-demo`.
+
+| Role                  | Email                           |
+| --------------------- | ------------------------------- |
+| Applicant             | `marina.costa@valeclaro.test`   |
+| Analyst (Environment) | `helena.duarte@valeclaro.test`  |
+| Admin                 | `nara.quinteiro@valeclaro.test` |
+
+Sign in at `/sign-in`. Admins open `/admin/protocol-types` to edit services.
 
 Useful sample numbers:
 
@@ -86,7 +95,7 @@ Useful sample numbers:
 ```bash
 npm run dev        # local app
 npm run lint       # eslint
-npm test           # status machine and catalog integrity
+npm test           # status machine, passwords, and catalog validation
 npm run typecheck  # tsc --noEmit
 npm run build      # production build
 npm run seed       # fictitious Vale Claro data
@@ -105,7 +114,8 @@ scripts/        seed catalog and loader
 ## Models
 
 - **Sector** — a city desk. The sample desks are data.
-- **User** — `applicant`, `analyst`, or `admin`. Analysts list the sector keys they cover. No passwords yet.
+- **User** — `applicant`, `analyst`, or `admin`. Passwords are hashed. Analysts list the sector keys they cover.
+- **Session** — a hashed sign-in token. The raw token stays in an http-only cookie.
 - **Workflow** — ordered stages. Each stage names the sector that owns it.
 - **ProtocolType** — a service: summary, publishing sector, workflow, form schema, and document requirements.
 - **Protocol** — one filed (or draft) case: status, current stage, answers, and attachment names. Bytes are not stored yet.
@@ -116,8 +126,8 @@ scripts/        seed catalog and loader
 
 These are later milestones. Together they are the bulk of the product, well beyond this foundation.
 
-1. **Accounts and roles.** Sessions for applicants, analysts, and admins. Protect routes. Limit an analyst to the sectors on their user record. Replace the preview banner.
-2. **Catalog administration.** Screens for an admin to add sectors, workflows, protocol types, form fields, and document requirements without a deploy.
+1. **Accounts and roles.** Sign-in for applicants, analysts, and admins is in place, and an analyst's account lists only their sectors. Still to do: password reset, inviting users, self-service registration, and locking the future review queue to those sectors.
+2. **Catalog administration.** Admins can create, edit, deactivate, and remove protocol types, including the form schema and required documents. Still to do: editing sectors and workflows in the UI, and an audit entry for each catalog change.
 3. **Schema-driven filing.** An applicant opens a draft, fills the sections defined by the chosen protocol type, saves progress, and submits. The step list comes from the schema.
 4. **Analyst desk.** A queue of protocols waiting at the analyst's sector, claim, section-by-section review, notes, and the four outcomes: send back, hand off, approve, reject.
 5. **Corrections loop.** The applicant sees which sections were sent back, edits those answers, resubmits, and the same sector claims the file again. The timeline records the loop.
