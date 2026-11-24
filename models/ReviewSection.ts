@@ -9,6 +9,8 @@ import { ReviewNoteSchema, type ReviewNote } from "./ReviewNote";
 export type ReviewSectionDocument = {
   protocol: Types.ObjectId;
   stageKey: string;
+  /** section reviews a form section; document reviews one required file. */
+  targetKind: "section" | "document";
   sectionKey: string;
   decision: ReviewDecision;
   notes: ReviewNote[];
@@ -25,6 +27,12 @@ const ReviewSectionSchema = new Schema<ReviewSectionDocument>(
       index: true,
     },
     stageKey: { type: String, required: true },
+    targetKind: {
+      type: String,
+      required: true,
+      enum: ["section", "document"],
+      default: "section",
+    },
     sectionKey: { type: String, required: true },
     decision: { type: String, required: true, enum: REVIEW_DECISIONS },
     notes: { type: [ReviewNoteSchema], required: true, default: [] },
@@ -32,7 +40,10 @@ const ReviewSectionSchema = new Schema<ReviewSectionDocument>(
   { timestamps: true, collection: "review_sections" },
 );
 
-ReviewSectionSchema.index({ protocol: 1, stageKey: 1, sectionKey: 1 }, { unique: true });
+ReviewSectionSchema.index(
+  { protocol: 1, stageKey: 1, targetKind: 1, sectionKey: 1 },
+  { unique: true },
+);
 
 export const ReviewSection: Model<ReviewSectionDocument> =
   (models.ReviewSection as Model<ReviewSectionDocument> | undefined) ??
