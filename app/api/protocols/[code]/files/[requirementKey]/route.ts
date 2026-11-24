@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readReviewerFile } from "@/lib/desk-store";
 import { readOwnedFile } from "@/lib/filing-store";
 import { createFileStore } from "@/lib/storage";
 import { getCurrentUser } from "@/lib/session";
@@ -23,11 +24,12 @@ export async function GET(
     );
   }
 
-  const file = await readOwnedFile({
-    userId: user.id,
-    code,
-    requirementKey,
-  });
+  const file =
+    (await readOwnedFile({
+      userId: user.id,
+      code,
+      requirementKey,
+    })) ?? (await readReviewerFile({ user, code, requirementKey }));
   if (!file) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
