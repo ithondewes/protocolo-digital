@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ServiceView } from "@/lib/queries";
 import { RouteStrip } from "./route-strip";
 
@@ -34,6 +35,12 @@ export function ServiceCard({ service }: { service: ServiceView }) {
           ))}
         </ul>
       </div>
+      <Link
+        href={`/file/${service.key}`}
+        className="mt-auto inline-flex w-fit rounded-full bg-pine px-4 py-2 text-sm font-semibold text-paper"
+      >
+        File this request
+      </Link>
     </article>
   );
 }
