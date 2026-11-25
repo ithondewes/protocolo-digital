@@ -1,16 +1,33 @@
 import { formatWhen } from "@/lib/format";
 
+const KIND_LABEL: Record<string, string> = {
+  filed: "Filed",
+  claimed: "Claimed",
+  correction_requested: "Corrections",
+  resubmitted: "Resubmitted",
+  advanced: "Moved",
+  approved: "Issued",
+  rejected: "Closed",
+};
+
 export function Timeline({
   events,
 }: {
-  events: { id: string; title: string; detail: string; at: string; sectorName: string }[];
+  events: {
+    id: string;
+    kind?: string;
+    title: string;
+    detail: string;
+    at: string;
+    sectorName: string;
+  }[];
 }) {
   if (events.length === 0) {
     return <p className="text-muted">No public events yet.</p>;
   }
 
   return (
-    <ol className="space-y-6 border-l border-sand pl-6">
+    <ol aria-label="Public timeline" className="space-y-6 border-l border-sand pl-6">
       {events.map((event) => (
         <li key={event.id} className="relative">
           <span
@@ -21,9 +38,12 @@ export function Timeline({
             <time dateTime={event.at}>{formatWhen(event.at)}</time>
             {" · "}
             {event.sectorName}
+            {event.kind ? ` · ${KIND_LABEL[event.kind] ?? event.kind}` : ""}
           </p>
-          <h3 className="mt-1 font-display text-2xl">{event.title}</h3>
-          <p className="mt-1 max-w-2xl text-muted">{event.detail}</p>
+          <h3 className="mt-1 font-display text-2xl sm:text-3xl">{event.title}</h3>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
+            {event.detail}
+          </p>
         </li>
       ))}
     </ol>
