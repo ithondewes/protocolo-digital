@@ -66,8 +66,14 @@ export default async function AccountPage({ searchParams }: AccountProps) {
         <section className="mt-8">
           <h2 className="font-display text-3xl">Your sectors</h2>
           <p className="mt-2 text-sm text-muted">
-            An analyst only covers the desks listed here. The shared review queue is still
-            to come.
+            An analyst only covers the desks listed here.{" "}
+            <Link
+              href="/desk"
+              className="font-medium text-pine underline-offset-4 hover:underline"
+            >
+              Open the inbox
+            </Link>
+            .
           </p>
           {sectors.length === 0 ? (
             <p className="mt-4 text-muted">No sector is assigned to this account.</p>

@@ -6,6 +6,8 @@ import { RouteStrip } from "@/components/route-strip";
 import { StatusBadge } from "@/components/status-badge";
 import { Timeline } from "@/components/timeline";
 import { TrackForm } from "@/components/track-form";
+import { listOpenCorrections, type OpenCorrection } from "@/lib/desk-store";
+import { getCurrentUser } from "@/lib/session";
 import {
   getPublicProtocol,
   normalizeProtocolCode,
@@ -24,8 +26,17 @@ export async function generateMetadata({ params }: TrackCodeProps): Promise<Meta
 export default async function PublicProtocolPage({ params }: TrackCodeProps) {
   const { code } = await params;
   let protocol: PublicProtocol | null = null;
+  let corrections: OpenCorrection[] = [];
+  let viewerId: string | null = null;
   try {
-    protocol = await getPublicProtocol(code);
+    const [loaded, notes, viewer] = await Promise.all([
+      getPublicProtocol(code),
+      listOpenCorrections(code),
+      getCurrentUser(),
+    ]);
+    protocol = loaded;
+    corrections = notes;
+    viewerId = viewer?.id ?? null;
   } catch (error) {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
@@ -66,6 +77,28 @@ export default async function PublicProtocolPage({ params }: TrackCodeProps) {
           <RouteStrip stages={protocol.stages} currentKey={protocol.currentStageKey} />
         </div>
       </section>
+
+      {corrections.length > 0 ? (
+        <section className="rounded-3xl border border-copper/40 bg-card p-5">
+          <h2 className="font-display text-3xl">Corrections requested</h2>
+          <ul className="mt-4 space-y-3">
+            {corrections.map((item) => (
+              <li key={`${item.kind}:${item.key}`}>
+                <p className="font-medium">{item.label}</p>
+                <p className="text-sm text-muted">{item.comment}</p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-sm">
+            <Link
+              href={`/file/correct/${protocol.code}`}
+              className="font-medium text-pine underline-offset-4 hover:underline"
+            >
+              {viewerId ? "Respond in your account" : "Sign in to respond"}
+            </Link>
+          </p>
+        </section>
+      ) : null}
 
       <section>
         <h2 className="font-display text-3xl">Timeline</h2>

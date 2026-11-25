@@ -57,13 +57,21 @@ export default async function FiledProtocolPage({ params }: SentProps) {
               : `Now at ${receipt.currentSectorName}`}
           </p>
         </div>
-        <p className="mt-4 text-sm">
+        <p className="mt-4 flex flex-wrap gap-4 text-sm">
           <Link
             href={`/track/${receipt.code}`}
             className="font-medium text-pine underline-offset-4 hover:underline"
           >
             Open the public timeline
           </Link>
+          {receipt.status === "corrections_requested" ? (
+            <Link
+              href={`/file/correct/${receipt.code}`}
+              className="font-medium text-copper underline-offset-4 hover:underline"
+            >
+              Respond to corrections
+            </Link>
+          ) : null}
         </p>
       </div>
 
