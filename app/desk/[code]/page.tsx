@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { AssistantSummary } from "@/components/assistant-summary";
 import { ReviewForm } from "@/components/review-form";
 import { RouteStrip } from "@/components/route-strip";
 import { StatusBadge } from "@/components/status-badge";
+import { assistantConfig } from "@/lib/assistant";
 import { readDeskCase } from "@/lib/desk-store";
 import { requireUser } from "@/lib/guards";
 import { normalizeProtocolCode } from "@/lib/queries";
@@ -50,6 +52,7 @@ export default async function DeskCasePage({ params, searchParams }: DeskCasePro
         </div>
       </div>
       <RouteStrip stages={deskCase.stages} currentKey={deskCase.currentStageKey} />
+      <AssistantSummary code={deskCase.code} enabled={assistantConfig() !== null} />
       {query.error ? (
         <p role="alert" className="rounded-2xl bg-clay-soft px-4 py-3 text-sm text-clay">
           {query.error}
