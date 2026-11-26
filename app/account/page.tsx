@@ -53,7 +53,7 @@ export default async function AccountPage({ searchParams }: AccountProps) {
         <p className="mt-6 text-muted">
           You can change protocol types, including their forms and required documents.{" "}
           <Link
-            href="/admin/protocol-types"
+            href="/admin"
             className="font-medium text-pine underline-offset-4 hover:underline"
           >
             Open the catalog

@@ -11,7 +11,10 @@ export default async function ProtocolTypeListPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <Link href="/admin" className="text-sm font-medium text-pine underline-offset-4 hover:underline">
+        Catalog admin
+      </Link>
+      <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-5xl">Service catalog</h1>
           <p className="mt-3 max-w-2xl text-muted">

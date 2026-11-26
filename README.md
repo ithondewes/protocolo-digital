@@ -24,6 +24,9 @@ The sample catalog includes Public Works, Environment, Taxes, Sanitary Inspectio
 - An analyst inbox filtered by status, sector, and service. Claiming a protocol starts the review.
 - Section and document review. An analyst can approve an item or request a correction with a comment, then send the file back, hand it to the next sector, issue the final approval, or reject it.
 - A corrections loop. The applicant sees the requested changes on the public timeline and in their account, edits those parts, and resubmits. Earlier timeline events stay in place.
+- A public tracking page with the status of each sector on the route, pending corrections, and the timeline.
+- Admin screens for sectors and protocol types. Protocol types still carry the form schema and the required documents, checked with Zod.
+- An optional analyst assistant. It stays off unless `ANALYST_ASSISTANT_URL` and `ANALYST_ASSISTANT_API_KEY` are set. It only writes a summary. It does not file a decision.
 
 ## Status machine
 
@@ -86,7 +89,7 @@ Uploaded documents go to `data/uploads` unless `UPLOAD_DIR` points somewhere els
 | Analyst (Environment) | `helena.duarte@valeclaro.test`  |
 | Admin                 | `nara.quinteiro@valeclaro.test` |
 
-Sign in at `/sign-in`. Applicants open `/file` to submit a service. Analysts open `/desk` for the inbox. Admins open `/admin/protocol-types` to edit services.
+Sign in at `/sign-in`. Applicants open `/file` to submit a service. Analysts open `/desk` for the inbox. Admins open `/admin` to edit sectors and protocol types. Track a number at `/track`.
 
 Useful sample numbers:
 
@@ -135,12 +138,12 @@ scripts/        seed catalog and loader
 These are later milestones. Together they are the bulk of the product, well beyond this foundation.
 
 1. **Accounts and roles.** Sign-in for applicants, analysts, and admins is in place. The inbox only lists the sectors on an analyst's account. Still to do: password reset, inviting users, and self-service registration.
-2. **Catalog administration.** Admins can create, edit, deactivate, and remove protocol types, including the form schema and required documents. Still to do: editing sectors and workflows in the UI, and an audit entry for each catalog change.
+2. **Catalog administration.** Admins can create, edit, deactivate, and remove sectors and protocol types. Protocol types include the form schema and required documents. Still to do: editing workflows in the UI, and an audit entry for each catalog change.
 3. **Schema-driven filing.** An applicant opens a service and submits the form defined by that protocol type. The section list comes from the schema. Still to do: saving a draft and finishing it later.
 4. **Analyst desk.** The inbox, claim, section and document review, handoff, issuance, and rejection are in place for the sectors on the analyst's account. Still to do: reassignment, a shared unclaimed pool separate from "my claimed files", and bulk actions.
 5. **Corrections loop.** The applicant can see the open requests, edit those parts, and resubmit. The timeline keeps the earlier events. Still to do: limiting edits to a diff view, and letting the applicant reply without replacing every flagged document.
 6. **Document storage.** Uploads are checked for type and size and written through a storage interface. The included driver stores files on local disk for development, and the public timeline does not show them. Reviewers can download a stored file from the desk. Still to do: previews in the page, and a driver other than local disk.
-7. **AI analyst assistant.** A first-class helper on the review desk. It checks the submission against that protocol type's fields and required documents, writes a short summary of the request, and suggests notes the analyst can edit. It does not file a decision.
+7. **AI analyst assistant.** A provider-agnostic summary is available on the review screen when an assistant URL and API key are configured. It does not file a decision. Still to do: a checklist against the required documents, and suggested notes the analyst can edit before saving.
 8. **Fees.** An optional fee on a protocol type and a payment step around submission.
 9. **Notifications.** Email the applicant and the next sector when a protocol is filed, returned, advanced, approved, or rejected.
 10. **Deadlines.** A due date per stage and a desk view of what is late.

@@ -43,10 +43,7 @@ export async function SiteHeader() {
             </Link>
           ) : null}
           {user?.role === "admin" ? (
-            <Link
-              href="/admin/protocol-types"
-              className="underline-offset-4 hover:underline"
-            >
+            <Link href="/admin" className="underline-offset-4 hover:underline">
               Catalog
             </Link>
           ) : null}
