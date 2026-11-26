@@ -9,7 +9,7 @@ describe("readSubmission", () => {
   it("reads the service, the answer JSON, and one file", async () => {
     const form = new FormData();
     form.set("typeKey", "tree-care");
-    form.set("answers", JSON.stringify({ place: { nearbyStreet: "Rua dos Exemplos" } }));
+    form.set("answers", JSON.stringify({ place: { nearbyStreet: "Example Street" } }));
     form.set(
       "document.canopy-photo",
       new File([jpeg], "canopy.jpg", { type: "image/jpeg" }),
@@ -18,7 +18,7 @@ describe("readSubmission", () => {
     const submission = await readSubmission(form);
     assert.deepEqual(submission.issues, []);
     assert.equal(submission.typeKey, "tree-care");
-    assert.deepEqual(submission.answers, { place: { nearbyStreet: "Rua dos Exemplos" } });
+    assert.deepEqual(submission.answers, { place: { nearbyStreet: "Example Street" } });
     assert.equal(submission.files.length, 1);
     assert.equal(submission.files[0]?.requirementKey, "canopy-photo");
     assert.deepEqual(Array.from(submission.files[0]?.bytes ?? []), Array.from(jpeg));

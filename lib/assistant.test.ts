@@ -8,7 +8,7 @@ const brief: ProtocolBrief = {
   statusLabel: "Waiting to be claimed",
   currentSector: "Environment",
   route: ["Environment"],
-  sections: [{ title: "Place", text: "Street: Rua dos Exemplos" }],
+  sections: [{ title: "Place", text: "Street: Example Street" }],
   documents: [{ label: "Photo of the canopy", fileName: "canopy-photo.jpg" }],
   openCorrections: [],
 };
