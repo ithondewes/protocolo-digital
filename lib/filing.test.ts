@@ -94,7 +94,7 @@ describe("opening submission", () => {
 describe("answer parsing", () => {
   it("accepts form-control strings and drops empty optional fields", () => {
     const parsed = parseAnswers(treeCare, {
-      place: { nearbyStreet: "  Rua dos Exemplos, 40  ", landmark: "  " },
+      place: { nearbyStreet: "  Example Street, 40  ", landmark: "  " },
       care: {
         action: "Prune",
         seats: "",
@@ -106,7 +106,7 @@ describe("answer parsing", () => {
     assert.equal(parsed.ok, true);
     if (parsed.ok) {
       assert.deepEqual(parsed.answers, {
-        place: { nearbyStreet: "Rua dos Exemplos, 40" },
+        place: { nearbyStreet: "Example Street, 40" },
         care: {
           action: "Prune",
           startsOn: "2026-12-01",
@@ -118,7 +118,7 @@ describe("answer parsing", () => {
 
   it("requires an explicit yes or no", () => {
     const parsed = parseAnswers(treeCare, {
-      place: { nearbyStreet: "Rua dos Exemplos" },
+      place: { nearbyStreet: "Example Street" },
       care: { action: "Prune", startsOn: "2026-12-01", cooksOnSite: "" },
     });
     assert.equal(parsed.ok, false);

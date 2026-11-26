@@ -1,73 +1,62 @@
 # Digital Protocol
 
-Digital Protocol is an open-source hub where people file a request with a municipality and the file moves between city sectors. The sample city is **Vale Claro**, and every person, parcel, and street in the seed data is fictitious.
+Digital Protocol is an open-source hub for municipal requests. A person files one protocol, and the file moves between city sectors until the last desk on its route issues a decision or closes it. The sample city is **Vale Claro**. Every person, parcel, and street in the seed data is fictitious.
 
-A sector publishes services. Each service is a protocol type with its own form and its own list of documents. A workflow says which sectors review the file, and in which order. One protocol number follows the file the whole way. Anyone who has the number can open a public timeline. Form answers, review notes, and files stay off that page.
+A building file is one service in that catalog, alongside street-tree care, property-tax review, food-service clearance, and temporary sidewalk occupation. New sectors and new forms are catalog data. They are not separate products and they do not need a new wizard.
 
-The sample catalog includes Public Works, Environment, Taxes, Sanitary Inspection, and Street Use. A building file is one service in that catalog, not a separate product. Its form has a work-kind field (new construction, occupancy certificate, or demolition) and its route is Environment, then Public Works, then Taxes. Other services stop at a single desk, or at two. New sectors and new forms are data, not new wizards.
-
-## Features in this version
+## Features
 
 - Sector, workflow, protocol type, protocol, review, timeline, and user models.
-- Protocol types store a form schema (sections and fields) and the documents they require.
+- Protocol types store a form schema (sections and fields) and the documents they require. Zod checks the catalog and the answers.
 - A status machine for `draft`, `submitted`, `in_review`, `corrections_requested`, `approved`, and `rejected`, plus a handoff rule for multi-sector routes.
-- Review sections and notes keyed by the form section and the workflow stage.
-- A public timeline that can hide internal events later (the assistant and staff audit will use those).
-- A seed script with fictitious Vale Claro data, checked against the status machine and the form schemas.
-- A landing page, a sector directory, a per-sector protocol list, and a public tracking page.
-- A read-only JSON view at `/api/protocols/[code]`.
-- Sign-in for applicants, analysts, and admins. Analysts see only the sectors on their account. Admins edit protocol types.
-- An admin catalog for protocol types: form sections, fields, and required documents, validated with Zod.
-- An applicant form rendered from the chosen protocol type. Zod checks the answers in the browser and again on the server.
-- Required-document uploads. The server checks the type and the size, then writes the bytes through a storage interface. The development driver keeps them on local disk.
-- Filing assigns the next protocol number, sets the status to `submitted`, and records a public timeline event at the first sector on the route.
-- An analyst inbox filtered by status, sector, and service. Claiming a protocol starts the review.
-- Section and document review. An analyst can approve an item or request a correction with a comment, then send the file back, hand it to the next sector, issue the final approval, or reject it.
-- A corrections loop. The applicant sees the requested changes on the public timeline and in their account, edits those parts, and resubmits. Earlier timeline events stay in place.
-- A public tracking page with the status of each sector on the route, pending corrections, and the timeline.
-- Admin screens for sectors and protocol types. Protocol types still carry the form schema and the required documents, checked with Zod.
-- An optional analyst assistant. It stays off unless `ANALYST_ASSISTANT_URL` and `ANALYST_ASSISTANT_API_KEY` are set. It only writes a summary. It does not file a decision.
+- Sign-in for applicants, analysts, and admins. An analyst sees only the sectors on their account.
+- An applicant form rendered from the chosen protocol type, with required-document uploads stored through a local disk driver in development.
+- An analyst inbox with claim, section and document review, handoff, issuance, and rejection.
+- A corrections loop. The applicant sees the open requests, edits those parts, and resubmits. Earlier timeline events stay in place.
+- A public tracking page. Anyone with the protocol number can see each sector's status and the public timeline. Answers, notes, and files stay off that page.
+- Admin screens for sectors and protocol types.
+- An optional analyst assistant. It stays off unless both `ANALYST_ASSISTANT_URL` and `ANALYST_ASSISTANT_API_KEY` are set, and it only writes a summary.
 
-## Status machine
+## Screenshots
 
-The source of truth is `lib/protocol-flow.ts`.
+These pages were captured from a local run seeded with the fictitious city of Vale Claro.
 
-| From                    | To                      | When                                                                                                               |
-| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `draft`                 | `submitted`             | The applicant files the protocol.                                                                                  |
-| `submitted`             | `in_review`             | An analyst at the current sector claims it.                                                                        |
-| `in_review`             | `corrections_requested` | That sector sends the file back.                                                                                   |
-| `corrections_requested` | `submitted`             | The applicant returns the correction.                                                                              |
-| `in_review`             | `submitted`             | The sector clears its stage and a later sector is still on the route. The file waits, unclaimed, at the next desk. |
-| `in_review`             | `approved`              | The sector clears its stage and it is the last one.                                                                |
-| `in_review`             | `rejected`              | The sector closes the file.                                                                                        |
-| `approved`, `rejected`  | —                       | Terminal.                                                                                                          |
+![Vale Claro home page, with the protocol tracker and the five city sectors](docs/screenshots/home.png)
 
-`submitted` means "waiting to be claimed at the current sector". That is true just after filing, after a correction comes back, and after the previous sector hands the file on. Approving is refused while a later stage still exists. `handoffAfterClearance` is the function that encodes that choice.
+![Public tracking for VC-2026-1077, showing Environment cleared, Public Works in review, and Taxes not started](docs/screenshots/tracking.png)
 
-A section decision (`pending`, `cleared`, `changes_requested`) does not by itself change the protocol status. The analyst still chooses to send the file back, hand it to the next sector, approve it, or reject it.
+![Public tracking for VC-2026-1022, with a pending correction beside the timeline](docs/screenshots/corrections.png)
 
-## Stack
+![Applicant form for the building file, rendered from that protocol type](docs/screenshots/filing.png)
 
-- Next.js 16 (App Router) and React 19
-- TypeScript in strict mode
-- MongoDB with Mongoose
-- Tailwind CSS
-- Zod for the catalog form schemas and for the answers an applicant submits
-- Node's test runner for the status machine, filing rules, upload checks, and the seed catalog
+![Public Works inbox for the fictitious analyst Caio Mendes](docs/screenshots/inbox.png)
+
+![Review screen for VC-2026-1077, with the assistant off and the proposal section open](docs/screenshots/review.png)
+
+![Catalog admin, with links to sectors and protocol types](docs/screenshots/admin.png)
 
 ## Setup
 
-Requires Node.js 22+ and a local MongoDB 6 or newer.
+Requires Node.js 22+ and MongoDB 6 or newer.
 
 ```bash
 npm install
 cp .env.example .env
 ```
 
-`.env.example` holds a placeholder database URI and a placeholder `SESSION_SECRET`. Replace the secret before any shared deployment. Do not put real credentials in the example file.
+Environment variables, from `.env.example`:
 
-Start MongoDB, then load the sample city:
+| Variable                    | Required | Purpose                                                                                               |
+| --------------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| `MONGODB_URI`               | Yes      | Database URI. The example points at `mongodb://127.0.0.1:27017/digital_protocol`.                     |
+| `SESSION_SECRET`            | Yes      | Signs the session cookie. The example is a placeholder. Replace it before any shared deployment.      |
+| `UPLOAD_DIR`                | No       | Directory for uploaded documents. The default is `data/uploads`, which is not part of the repository. |
+| `ANALYST_ASSISTANT_URL`     | No       | Optional summary endpoint. Leave unset to keep the assistant off.                                     |
+| `ANALYST_ASSISTANT_API_KEY` | No       | Bearer token for that endpoint. Both this and the URL must be set, or the assistant stays off.        |
+
+Do not put real credentials in `.env.example`.
+
+Start MongoDB, load the sample city, and run the app:
 
 ```bash
 # example if you use Docker
@@ -81,15 +70,14 @@ Open [http://localhost:3000](http://localhost:3000).
 
 `npm run seed` deletes and rewrites the `digital_protocol` database. It refuses to load a catalog that breaks the status machine, the route, or a form schema. Every fictitious account uses the password `vale-claro-demo`.
 
-Uploaded documents go to `data/uploads` unless `UPLOAD_DIR` points somewhere else. That folder is for this machine only. The public timeline never includes the files.
+| Role                   | Email                           |
+| ---------------------- | ------------------------------- |
+| Applicant              | `marina.costa@valeclaro.test`   |
+| Analyst (Environment)  | `helena.duarte@valeclaro.test`  |
+| Analyst (Public Works) | `caio.mendes@valeclaro.test`    |
+| Admin                  | `nara.quinteiro@valeclaro.test` |
 
-| Role                  | Email                           |
-| --------------------- | ------------------------------- |
-| Applicant             | `marina.costa@valeclaro.test`   |
-| Analyst (Environment) | `helena.duarte@valeclaro.test`  |
-| Admin                 | `nara.quinteiro@valeclaro.test` |
-
-Sign in at `/sign-in`. Applicants open `/file` to submit a service. Analysts open `/desk` for the inbox. Admins open `/admin` to edit sectors and protocol types. Track a number at `/track`.
+Sign in at `/sign-in`. Applicants open `/file`. Analysts open `/desk`. Admins open `/admin`. Track a number at `/track`.
 
 Useful sample numbers:
 
@@ -97,60 +85,86 @@ Useful sample numbers:
 | -------------- | ------------------------------------------------------------------------------------- |
 | `VC-2026-1077` | Occupancy certificate, in review at Public Works after Environment cleared its stage. |
 | `VC-2026-1118` | Building file waiting to be claimed at Public Works.                                  |
-| `VC-2026-1014` | Tree-care file that went out for a correction and came back.                          |
+| `VC-2026-1022` | Property-tax review with a correction still open.                                     |
+| `VC-2026-1014` | Street-tree file that went out for a correction and came back.                        |
 | `VC-2026-1124` | Building file approved after all three sectors.                                       |
 | `VC-2026-1088` | Draft. The public page says it is not filed yet and hides the answers.                |
-
-## Scripts
 
 ```bash
 npm run dev        # local app
 npm run lint       # eslint
-npm test           # status machine, filing, uploads, passwords, and catalog validation
+npm test           # status machine, filing, uploads, passwords, tracking, and the catalog
 npm run typecheck  # tsc --noEmit
 npm run build      # production build
 npm run seed       # fictitious Vale Claro data
 ```
 
-## Layout
+## Architecture
+
+The app is a Next.js 16 App Router project in TypeScript. MongoDB is accessed through Mongoose. Tailwind styles the pages. Zod validates catalog edits, filing answers, review actions, and sector input. The domain rules live in `lib/` and are covered by Node's test runner, separate from the route handlers.
 
 ```
-app/            routes, including /file, /desk, /sectors, /track, and /api/protocols/[code]
-components/     header, lists, timeline, review form, applicant form
-lib/            status machine, review rules, form schemas, uploads, storage, database, queries
-models/         Mongoose models
-scripts/        seed catalog and loader
+app/         routes: /, /sectors, /file, /desk, /track, /admin, and the JSON APIs
+components/  header, forms, timeline, and the route strip
+lib/         status machine, review rules, tracking, assistant, uploads, sessions
+models/      Mongoose models
+scripts/     Vale Claro catalog and the seed loader
 ```
 
-## Models
+### Sectors
 
-- **Sector** — a city desk. The sample desks are data.
-- **User** — `applicant`, `analyst`, or `admin`. Passwords are hashed. Analysts list the sector keys they cover.
-- **Session** — a hashed sign-in token. The raw token stays in an http-only cookie.
-- **Workflow** — ordered stages. Each stage names the sector that owns it.
-- **ProtocolType** — a service: summary, publishing sector, workflow, form schema, and document requirements.
-- **Protocol** — one filed (or draft) case: status, current stage, answers, and attachments. A new filing stores a storage key, media type, and size. Seeded samples keep the file name only.
-- **ReviewSection / ReviewNote** — a decision and zero or more notes for one form section at one stage. Notes are embedded on the section.
-- **TimelineEvent** — a public or internal event. The tracking page shows public events only.
+A sector is a city desk: Public Works, Environment, Taxes, Sanitary Inspection, and Street Use in the sample. Each sector publishes services and owns the stages assigned to it. An analyst account lists the sector keys it may cover. Admins can create, rename, deactivate, and remove a sector unless a workflow, an analyst, or a protocol still uses it.
 
-## Roadmap
+### Protocol types
 
-These are later milestones. Together they are the bulk of the product, well beyond this foundation.
+A protocol type is one service. It names the sector that publishes it, the workflow that routes it, a form schema, and a list of documents. The form schema is sections and fields (`text`, `textarea`, `number`, `date`, `select`, `boolean`). The filing page reads that schema. It does not hard-code a wizard per service. The building file is the long example: work kind (new construction, occupancy certificate, or demolition), parcel, licensed professional, and site conditions, plus a survey sheet, a technical responsibility record, and a site note.
 
-1. **Accounts and roles.** Sign-in for applicants, analysts, and admins is in place. The inbox only lists the sectors on an analyst's account. Still to do: password reset, inviting users, and self-service registration.
-2. **Catalog administration.** Admins can create, edit, deactivate, and remove sectors and protocol types. Protocol types include the form schema and required documents. Still to do: editing workflows in the UI, and an audit entry for each catalog change.
-3. **Schema-driven filing.** An applicant opens a service and submits the form defined by that protocol type. The section list comes from the schema. Still to do: saving a draft and finishing it later.
-4. **Analyst desk.** The inbox, claim, section and document review, handoff, issuance, and rejection are in place for the sectors on the analyst's account. Still to do: reassignment, a shared unclaimed pool separate from "my claimed files", and bulk actions.
-5. **Corrections loop.** The applicant can see the open requests, edit those parts, and resubmit. The timeline keeps the earlier events. Still to do: limiting edits to a diff view, and letting the applicant reply without replacing every flagged document.
-6. **Document storage.** Uploads are checked for type and size and written through a storage interface. The included driver stores files on local disk for development, and the public timeline does not show them. Reviewers can download a stored file from the desk. Still to do: previews in the page, and a driver other than local disk.
-7. **AI analyst assistant.** A provider-agnostic summary is available on the review screen when an assistant URL and API key are configured. It does not file a decision. Still to do: a checklist against the required documents, and suggested notes the analyst can edit before saving.
-8. **Fees.** An optional fee on a protocol type and a payment step around submission.
-9. **Notifications.** Email the applicant and the next sector when a protocol is filed, returned, advanced, approved, or rejected.
-10. **Deadlines.** A due date per stage and a desk view of what is late.
-11. **Audit log.** An internal history of claims, edits, and decisions, separate from the public timeline.
-12. **Digital signature.** Sign the final decision record.
-13. **Tests.** The status machine, claim, handoff, issuance, and correction rules have unit tests. Still to do: route-level tests for the inbox and the resubmit form.
-14. **CI.** Run lint, typecheck, test, and build on every pull request.
+### Workflows
+
+A workflow is an ordered list of stages. Each stage names the sector that owns it. The sample catalog has single-desk workflows (Environment, Taxes, Sanitary Inspection) and two longer ones. Temporary sidewalk occupation goes to Street Use, then Public Works. The building file goes to Environment, then Public Works, then Taxes. Adding a route means adding workflow data, not a new page.
+
+### Routing
+
+`lib/protocol-flow.ts` is the source of truth for status and handoff.
+
+| From                    | To                      | When                                                                                                               |
+| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `draft`                 | `submitted`             | The applicant files the protocol.                                                                                  |
+| `submitted`             | `in_review`             | An analyst at the current sector claims it.                                                                        |
+| `in_review`             | `corrections_requested` | That sector sends the file back.                                                                                   |
+| `corrections_requested` | `submitted`             | The applicant returns the correction.                                                                              |
+| `in_review`             | `submitted`             | The sector clears its stage and a later sector is still on the route. The file waits, unclaimed, at the next desk. |
+| `in_review`             | `approved`              | The sector clears its stage and it is the last one.                                                                |
+| `in_review`             | `rejected`              | The sector closes the file.                                                                                        |
+| `approved`, `rejected`  | —                       | Terminal.                                                                                                          |
+
+`submitted` means "waiting to be claimed at the current sector". That is true just after filing, after a correction comes back, and after the previous sector hands the file on. Approving is refused while a later stage still exists. `handoffAfterClearance` encodes that choice. A section decision (`pending`, `cleared`, `changes_requested`) does not by itself change the protocol status.
+
+### Public tracking
+
+`/track/[code]` is public. `lib/tracking.ts` labels every sector on the route: cleared, in review, waiting to be claimed, corrections requested, not started, issued, or closed. The page also lists pending correction comments and the public timeline. Drafts say they are not filed yet and hide the answers. Internal events stay off the page. A read-only JSON view of the same public record is at `/api/protocols/[code]`.
+
+### Analyst review
+
+`/desk` lists protocols at the signed-in analyst's sectors, filtered by status, sector, and service. Claiming a `submitted` protocol moves it to `in_review`. The review screen shows the route, each form section, and each document. The analyst approves an item or requests a correction with a comment, then saves, sends the file back, hands it to the next sector, issues the approval, or rejects it. Issuing is only offered on the last stage, and only when every item is cleared.
+
+### Corrections loop
+
+When a sector requests corrections, the protocol becomes `corrections_requested` and the comments appear on the public timeline and in the applicant's account. The applicant edits the flagged parts at `/file/correct/[code]` and resubmits. The file returns to `submitted` at the same desk, with no assignee, and the earlier timeline events remain.
+
+### Optional assistant
+
+The review screen can ask an external endpoint for a short summary of the protocol. `lib/assistant.ts` sends a JSON brief (service, status, route, section text, document names, and open corrections) and expects `{ "summary": "..." }`. The button is hidden unless both `ANALYST_ASSISTANT_URL` and `ANALYST_ASSISTANT_API_KEY` are set. The assistant does not approve, reject, or request corrections. The instruction sent with the brief says the same thing.
+
+## Future ideas
+
+- Password reset, invitations, and self-service registration.
+- Workflow editing in the admin UI, and an audit entry for each catalog change.
+- Saving a draft and finishing it later.
+- Document previews, and a storage driver other than local disk.
+- A document checklist and suggested notes from the assistant, still without filing a decision.
+- Optional fees, email notifications, stage deadlines, an internal audit log, and a signed final decision.
+- Route-level tests, and CI that runs lint, typecheck, test, and build on each pull request.
 
 ## License
 
